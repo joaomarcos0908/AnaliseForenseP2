@@ -15,7 +15,30 @@ public class AnaliseForense implements AnaliseForenseAvancada {
 
         @Override
         public List<String> reconstruirLinhaTempo(String arquivo, String sessionId) throws IOException {
-            // Implementar usando Queue<String>
+            Queue<String> fila= new LinkedList<>();
+                    List<String> resultado=new ArrayList<>();
+                    try(BufferedReader br=new BufferedReader(new FileReader(arquivo))){
+                        br.readLine();
+                        String line=br.readLine();
+                        while(line!= null) {
+                            String[] filtro = line.split(",");
+                            String actionType = filtro[3];
+                            if (sessionId.equals(filtro[2])){
+                                fila.add(actionType);
+                        }
+                            line=br.readLine();
+                        }
+                        while(!fila.isEmpty()){
+                        resultado.add(fila.remove());
+                        }
+                        return resultado;
+                    }catch(IOException e){
+                        System.out.println(e.getMessage());
+                        return Collections.emptyList();
+                    }
+
+
+
         }
 
         @Override
