@@ -29,7 +29,7 @@ public class AnaliseForense implements AnaliseForenseAvancada {
                     }
                     verificarInvalidas.get(vect[1]).push(vect[2]);
                 }
-            }
+
     }
 
     @Override
