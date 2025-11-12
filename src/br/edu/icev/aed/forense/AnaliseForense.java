@@ -12,7 +12,7 @@ public class AnaliseForense implements AnaliseForenseAvancada {
     }
 
     @Override
-    public Set<String> encontrarSessoesInvalidas(String arquivo) throws IOException {
+    public List<Object> encontrarSessoesInvalidas(String arquivo) throws IOException {
         Map<String, Stack<String>> verificarInvalidas = new HashMap<>();
         Set<String> resultado = new HashSet<>();
         try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
@@ -61,8 +61,48 @@ public class AnaliseForense implements AnaliseForenseAvancada {
 
     @Override
     public List<Alerta> priorizarAlertas(String arquivo, int n) throws IOException {
-        // Implementar usando PriorityQueue<Alerta>
-    }
+                if (n == 0) {
+                    return Collections.emptyList();
+                }
+            }
+        Comparator<Alerta> comparadorDeSeveridade = (alerta1, alerta2) ->
+            Integer.compare(alerta2.getSeverityLevel(), alerta1.getSeverityLevel();
+
+            PriorityQueue<Alerta> filaDePrioridade = new PriorityQueue<>(comparadorDeSeveridade);
+
+            try (BufferedReader bufferedReader = new BufferedReader(new FileReader(arquivo))) {
+                br.readLine();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] campos = line.split(",");
+                    long timestamp = long.parseLong(campos[0]);
+                    String userId = campos[1];
+                    String sessionId = campos[2];
+                    String actionType = campos[3];
+                    String targetResource = campos[4];
+                    int severityLevel = Integer.parseInt(campos[5]);
+                    long bytesTransferred = Long.parseLong(campos[6]);
+                    Alerta alertaNovo = new Alerta(
+                            timestamp,
+                            userId,
+                            sessionId,
+                            actionType,
+                            targetResource,
+                            severityLevel,
+                            bytesTransferred
+                    );
+                    filaDePrioridade.add(alertaNovo);
+                }
+            } catch (IOException e) {
+                System.out.println("Erro ao ler o arquivo" + e.getMessage());
+                return Collections.emptyList();
+            }
+            List<Alerta> resultado = new ArrayList<>();
+            for  ( int i = 0; i  < n && !filaDePrioridade.isEmpty(); i++) {
+                resultado.add(filaDePrioridade.poll());
+            }
+            return resultado;
+    };
 
     @Override
     public Map<Long, Long> encontrarPicosTransferencia(String arquivo) throws IOException {
