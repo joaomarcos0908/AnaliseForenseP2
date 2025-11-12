@@ -13,7 +13,23 @@ public class AnaliseForense implements AnaliseForenseAvancada {
 
     @Override
     public Set<String> encontrarSessoesInvalidas(String arquivo) throws IOException {
-        // Implementar usando Map<String, Stack<String>>
+        Map<String, Stack<String>> verificarInvalidas = new HashMap<>();
+        Set<String> resultado = new HashSet<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
+            br.readLine();
+            String line = br.readLine();
+
+            while (line != null) {
+                String[] vect = line.split(",");
+
+                verificarInvalidas.putIfAbsent(vect[1], new Stack<>());
+                if (vect[3].equals("LOGIN")) {
+                    if (!verificarInvalidas.get(vect[1]).isEmpty()){
+                        resultado.add(vect[2]);
+                    }
+                    verificarInvalidas.get(vect[1]).push(vect[2]);
+                }
+            }
     }
 
     @Override
