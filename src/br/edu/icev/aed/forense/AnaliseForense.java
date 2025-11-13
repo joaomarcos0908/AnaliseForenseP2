@@ -5,6 +5,8 @@ import java.util.*;
 
 import br.edu.icev.aed.forense.AnaliseForenseAvancada;
 import br.edu.icev.aed.forense.Alerta;
+import java.io.IOException;
+import java.util.Collections;
 
 public class AnaliseForense implements AnaliseForenseAvancada {
 
@@ -29,9 +31,26 @@ public class AnaliseForense implements AnaliseForenseAvancada {
                     }
                     verificarInvalidas.get(vect[1]).push(vect[2]);
                 }
+                if(vect[3].equals("LOGOUT")) {
+                    (verificarInvalidas.get(vect[1]).isEmpty()||!verificarInvalidas.get(vect[1]).peek().equals(vect[2])
+                            resultado.add(vect[2]);
+                }else{
+                    verificarInvalidas.get(vect[1]).pop();
             }
         }
+            line=br.readLine();
 
+    }
+        for(String usuario : verificarInvalidas.keySet()){
+        Stack<String>pilha = verificarInvalidas.get(usuario);
+        while(!pilha.isEmpty()){
+        resultado.add(pilha.pop());
+        }
+        }
+        return resultado;
+    }catch(IOException e){
+        System.out.println(e.getMessage());
+        return Collections.emptySet();
     }
 
     @Override
