@@ -12,7 +12,7 @@ public class AnaliseForense implements AnaliseForenseAvancada {
     }
 
     @Override
-    public List<Object> encontrarSessoesInvalidas(String arquivo) throws IOException {
+    public Set<String> encontrarSessoesInvalidas(String arquivo) throws IOException {
         Map<String, Stack<String>> verificarInvalidas = new HashMap<>();
         Set<String> resultado = new HashSet<>();
         try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
@@ -24,11 +24,13 @@ public class AnaliseForense implements AnaliseForenseAvancada {
 
                 verificarInvalidas.putIfAbsent(vect[1], new Stack<>());
                 if (vect[3].equals("LOGIN")) {
-                    if (!verificarInvalidas.get(vect[1]).isEmpty()){
+                    if (!verificarInvalidas.get(vect[1]).isEmpty()) {
                         resultado.add(vect[2]);
                     }
                     verificarInvalidas.get(vect[1]).push(vect[2]);
                 }
+            }
+        }
 
     }
 
@@ -64,18 +66,18 @@ public class AnaliseForense implements AnaliseForenseAvancada {
                 if (n == 0) {
                     return Collections.emptyList();
                 }
-            }
+
         Comparator<Alerta> comparadorDeSeveridade = (alerta1, alerta2) ->
-            Integer.compare(alerta2.getSeverityLevel(), alerta1.getSeverityLevel();
+            Integer.compare(alerta2.getSeverityLevel(), alerta1.getSeverityLevel());
 
             PriorityQueue<Alerta> filaDePrioridade = new PriorityQueue<>(comparadorDeSeveridade);
 
-            try (BufferedReader bufferedReader = new BufferedReader(new FileReader(arquivo))) {
+            try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
                 br.readLine();
                 String line;
                 while ((line = br.readLine()) != null) {
                     String[] campos = line.split(",");
-                    long timestamp = long.parseLong(campos[0]);
+                    long timestamp = Long.parseLong(campos[0]);
                     String userId = campos[1];
                     String sessionId = campos[2];
                     String actionType = campos[3];
@@ -102,7 +104,7 @@ public class AnaliseForense implements AnaliseForenseAvancada {
                 resultado.add(filaDePrioridade.poll());
             }
             return resultado;
-    };
+    }
 
     @Override
     public Map<Long, Long> encontrarPicosTransferencia(String arquivo) throws IOException {
