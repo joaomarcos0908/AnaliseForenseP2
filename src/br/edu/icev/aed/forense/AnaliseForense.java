@@ -5,7 +5,6 @@ import java.util.*;
 
 import br.edu.icev.aed.forense.AnaliseForenseAvancada;
 import br.edu.icev.aed.forense.Alerta;
-import java.io.IOException;
 import java.util.Collections;
 
 public class AnaliseForense implements AnaliseForenseAvancada {
@@ -17,7 +16,9 @@ public class AnaliseForense implements AnaliseForenseAvancada {
     public Set<String> encontrarSessoesInvalidas(String arquivo) throws IOException {
         Map<String, Stack<String>> verificarInvalidas = new HashMap<>();
         Set<String> resultado = new HashSet<>();
+
         try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
+
             br.readLine();
             String line = br.readLine();
 
@@ -25,32 +26,42 @@ public class AnaliseForense implements AnaliseForenseAvancada {
                 String[] vect = line.split(",");
 
                 verificarInvalidas.putIfAbsent(vect[1], new Stack<>());
+
+
                 if (vect[3].equals("LOGIN")) {
                     if (!verificarInvalidas.get(vect[1]).isEmpty()) {
                         resultado.add(vect[2]);
                     }
                     verificarInvalidas.get(vect[1]).push(vect[2]);
                 }
-                if(vect[3].equals("LOGOUT")) {
-                    (verificarInvalidas.get(vect[1]).isEmpty()||!verificarInvalidas.get(vect[1]).peek().equals(vect[2])
-                            resultado.add(vect[2]);
-                }else{
-                    verificarInvalidas.get(vect[1]).pop();
-            }
-        }
-            line=br.readLine();
 
-    }
-        for(String usuario : verificarInvalidas.keySet()){
-        Stack<String>pilha = verificarInvalidas.get(usuario);
-        while(!pilha.isEmpty()){
-        resultado.add(pilha.pop());
+
+                if (vect[3].equals("LOGOUT")) {
+                    if (verificarInvalidas.get(vect[1]).isEmpty() ||
+                            !verificarInvalidas.get(vect[1]).peek().equals(vect[2])) {
+                        resultado.add(vect[2]);
+                    } else {
+                        verificarInvalidas.get(vect[1]).pop();
+                    }
+                }
+
+                line = br.readLine();
+            }
+
+
+            for (String usuario : verificarInvalidas.keySet()) {
+                Stack<String> pilha = verificarInvalidas.get(usuario);
+                while (!pilha.isEmpty()) {
+                    resultado.add(pilha.pop());
+                }
+            }
+
+            return resultado;
+
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            return Collections.emptySet();
         }
-        }
-        return resultado;
-    }catch(IOException e){
-        System.out.println(e.getMessage());
-        return Collections.emptySet();
     }
 
     @Override
@@ -82,53 +93,95 @@ public class AnaliseForense implements AnaliseForenseAvancada {
 
     @Override
     public List<Alerta> priorizarAlertas(String arquivo, int n) throws IOException {
-                if (n == 0) {
-                    return Collections.emptyList();
-                }
+        if (n == 0) {
+            return Collections.emptyList();
+        }
 
         Comparator<Alerta> comparadorDeSeveridade = (alerta1, alerta2) ->
-            Integer.compare(alerta2.getSeverityLevel(), alerta1.getSeverityLevel());
+                Integer.compare(alerta2.getSeverityLevel(), alerta1.getSeverityLevel());
 
-            PriorityQueue<Alerta> filaDePrioridade = new PriorityQueue<>(comparadorDeSeveridade);
+        PriorityQueue<Alerta> filaDePrioridade = new PriorityQueue<>(comparadorDeSeveridade);
 
-            try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
-                br.readLine();
-                String line;
-                while ((line = br.readLine()) != null) {
-                    String[] campos = line.split(",");
-                    long timestamp = Long.parseLong(campos[0]);
-                    String userId = campos[1];
-                    String sessionId = campos[2];
-                    String actionType = campos[3];
-                    String targetResource = campos[4];
-                    int severityLevel = Integer.parseInt(campos[5]);
-                    long bytesTransferred = Long.parseLong(campos[6]);
-                    Alerta alertaNovo = new Alerta(
-                            timestamp,
-                            userId,
-                            sessionId,
-                            actionType,
-                            targetResource,
-                            severityLevel,
-                            bytesTransferred
-                    );
-                    filaDePrioridade.add(alertaNovo);
-                }
-            } catch (IOException e) {
-                System.out.println("Erro ao ler o arquivo" + e.getMessage());
-                return Collections.emptyList();
+        try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
+            br.readLine();
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] campos = line.split(",");
+                long timestamp = Long.parseLong(campos[0]);
+                String userId = campos[1];
+                String sessionId = campos[2];
+                String actionType = campos[3];
+                String targetResource = campos[4];
+                int severityLevel = Integer.parseInt(campos[5]);
+                long bytesTransferred = Long.parseLong(campos[6]);
+                Alerta alertaNovo = new Alerta(
+                        timestamp,
+                        userId,
+                        sessionId,
+                        actionType,
+                        targetResource,
+                        severityLevel,
+                        bytesTransferred
+                );
+                filaDePrioridade.add(alertaNovo);
             }
-            List<Alerta> resultado = new ArrayList<>();
-            for  ( int i = 0; i  < n && !filaDePrioridade.isEmpty(); i++) {
-                resultado.add(filaDePrioridade.poll());
-            }
-            return resultado;
+        } catch (IOException e) {
+            System.out.println("Erro ao ler o arquivo" + e.getMessage());
+            return Collections.emptyList();
+        }
+        List<Alerta> resultado = new ArrayList<>();
+        for (int i = 0; i < n && !filaDePrioridade.isEmpty(); i++) {
+            resultado.add(filaDePrioridade.poll());
+        }
+        return resultado;
     }
 
     @Override
     public Map<Long, Long> encontrarPicosTransferencia(String arquivo) throws IOException {
-        // Implementar usando Stack (Next Greater Element)
+        List<Long> timestamps = new ArrayList<>();
+        List<Long> bytes = new ArrayList<>();
+        Map<Long, Long> resultado = new HashMap<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
+
+            br.readLine();
+            String line = br.readLine();
+
+            while (line != null) {
+                String[] vect = line.split(",");
+
+                long timestamp = Long.parseLong(vect[0].trim());
+                long bytesTransferidos = Long.parseLong(vect[6].trim());
+
+                timestamps.add(timestamp);
+                bytes.add(bytesTransferidos);
+
+                line = br.readLine();
+            }
+
+            Stack<Integer> pilha = new Stack<>();
+
+            for (int i = 0; i < bytes.size(); i++) {
+
+                while (!pilha.isEmpty() && bytes.get(i) > bytes.get(pilha.peek())) {
+
+                    int idxAnterior = pilha.pop();
+                    long tsAnterior = timestamps.get(idxAnterior);
+
+                    resultado.put(tsAnterior, timestamps.get(i));
+                }
+
+                pilha.push(i);
+            }
+
+            return resultado;
+
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            return Collections.emptyMap();
+        }
     }
+
 
     @Override
     public Optional<List<String>> rastrearContaminacao(String arquivo, String origem, String destino) throws IOException {
@@ -181,6 +234,9 @@ public class AnaliseForense implements AnaliseForenseAvancada {
             throw new RuntimeException(e);
         }
         return Optional.empty();
+
     }
 }
+
+
 
