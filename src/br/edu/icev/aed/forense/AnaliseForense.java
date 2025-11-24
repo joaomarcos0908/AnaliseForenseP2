@@ -1,10 +1,8 @@
 package br.edu.icev.aed.forense;
-
-import java.io.*;
-import java.util.*;
-
 import br.edu.icev.aed.forense.AnaliseForenseAvancada;
 import br.edu.icev.aed.forense.Alerta;
+import java.io.*;
+import java.util.*;
 import java.util.Collections;
 
 public class AnaliseForense implements AnaliseForenseAvancada {
@@ -217,7 +215,7 @@ public class AnaliseForense implements AnaliseForenseAvancada {
                             fila.add(v);
                         }
 
-                        if (atual.equals(destino)) {
+                        if (v.equals(destino)) {
                             List<String> caminhoSucesso = new LinkedList<>();
                             String recursoAtual = destino;
                             while (recursoAtual != null) {
