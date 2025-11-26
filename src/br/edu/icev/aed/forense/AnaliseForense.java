@@ -21,6 +21,10 @@ public class AnaliseForense implements AnaliseForenseAvancada {
             String line = br.readLine();
 
             while (line != null) {
+                if (line.trim().isEmpty()) {
+                    line = br.readLine();
+                    continue;
+                }
                 String[] vect = line.split(",");
 
                 verificarInvalidas.putIfAbsent(vect[1], new Stack<>());
@@ -57,7 +61,6 @@ public class AnaliseForense implements AnaliseForenseAvancada {
             return resultado;
 
         } catch (IOException e) {
-            System.out.println(e.getMessage());
             return Collections.emptySet();
         }
     }
@@ -70,6 +73,10 @@ public class AnaliseForense implements AnaliseForenseAvancada {
             br.readLine();
             String line = br.readLine();
             while (line != null) {
+                if (line.trim().isEmpty()) {
+                    line = br.readLine();
+                    continue;
+                }
                 String[] filtro = line.split(",");
                 String actionType = filtro[3];
                 if (sessionId.equals(filtro[2])) {
@@ -82,7 +89,7 @@ public class AnaliseForense implements AnaliseForenseAvancada {
             }
             return resultado;
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+
             return Collections.emptyList();
         }
 
@@ -104,6 +111,9 @@ public class AnaliseForense implements AnaliseForenseAvancada {
             br.readLine();
             String line;
             while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
                 String[] campos = line.split(",");
                 long timestamp = Long.parseLong(campos[0]);
                 String userId = campos[1];
@@ -124,7 +134,6 @@ public class AnaliseForense implements AnaliseForenseAvancada {
                 filaDePrioridade.add(alertaNovo);
             }
         } catch (IOException e) {
-            System.out.println("Erro ao ler o arquivo" + e.getMessage());
             return Collections.emptyList();
         }
         List<Alerta> resultado = new ArrayList<>();
@@ -142,10 +151,15 @@ public class AnaliseForense implements AnaliseForenseAvancada {
 
         try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
 
+
             br.readLine();
             String line = br.readLine();
 
             while (line != null) {
+                if (line.trim().isEmpty()) {
+                    line = br.readLine();
+                    continue;
+                }
                 String[] vect = line.split(",");
 
                 long timestamp = Long.parseLong(vect[0].trim());
@@ -175,7 +189,6 @@ public class AnaliseForense implements AnaliseForenseAvancada {
             return resultado;
 
         } catch (IOException e) {
-            System.out.println(e.getMessage());
             return Collections.emptyMap();
         }
     }
@@ -189,6 +202,10 @@ public class AnaliseForense implements AnaliseForenseAvancada {
             br.readLine();
             String line = br.readLine();
             while (line != null) {
+                if (line.trim().isEmpty()) {
+                    line = br.readLine();
+                    continue;
+                }
                 String[] vect = line.split(",");
 
                 if (sessionTracker.containsKey(vect[2])) {
